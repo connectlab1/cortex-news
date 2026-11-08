@@ -8,13 +8,11 @@ tree
 ├── _config.yml
 ├── data
 │   └── historico.json
-├── deploy1.sh
 ├── deploy.sh
 ├── index.html
 ├── _layouts
 │   ├── default.html
 │   └── post.html
-├── main1.py
 ├── main.py
 ├── _posts
 │   ├── 2026-11-06-nome-do-post.md
