@@ -27,10 +27,10 @@ O **Cortex News** é um laboratório automatizado de engenharia de dados que rea
 
 Para guias detalhados de instalação, estrutura de pastas e solução de erros, acesse a nossa **Wiki**:
 
-* 📘 [Visão Geral e Arquitetura do Projeto](http://wiki/Visao-Geral)  
-* 🛠️ [Guia de Instalação e Configuração do Ambiente](http://wiki/Instalacao)  
-* 💻 [Modo de Uso Local e Scripts Python](http://wiki/Uso-Local)  
-* 🔧 [Manual de Resolução de Problemas (Troubleshooting)](http://wiki/Troubleshooting)
+* 📘 [Visão Geral e Arquitetura do Projeto](https://github.com/connectlab1/cortex-news/wiki/Vis%C3%A3o-Geral)  
+* 🛠️ [Guia de Instalação e Configuração do Ambiente](https://github.com/connectlab1/cortex-news/wiki/Instala%C3%A7%C3%A3o)  
+* 💻 [Modo de Uso Local e Scripts Python](https://github.com/connectlab1/cortex-news/wiki/Uso-Local)  
+* 🔧 [Manual de Resolução de Problemas (Troubleshooting)](https://github.com/connectlab1/cortex-news/wiki/Troubleshooting)
 
 ---
 
