@@ -3,20 +3,19 @@ import re
 import html
 from src.config import MIN_PALAVRAS
 from src.history import carregar_historico
-from src.filters import limpar_texto_com_filtros  # Importação correta e isolada do módulo filters
+from src.filters import limpar_texto_com_filtros
 
 
 def _obter_timestamp(item):
     """Retorna um valor seguro de datetime em UTC para ordenação cronológica.
 
     Trata casos onde as datas possuem ou não fuso horário (naive vs. aware)
-    para evitar erros de comparação durante o `.sort()`.
+    para evitar erros de comparação durante o .sort().
     """
     dt = item.get("data_obj")
     if not isinstance(dt, datetime):
         return datetime.min.replace(tzinfo=timezone.utc)
 
-    # Se a data não tiver fuso horário (naive), define como UTC padrão
     if dt.tzinfo is None:
         return dt.replace(tzinfo=timezone.utc)
 
@@ -24,24 +23,25 @@ def _obter_timestamp(item):
 
 
 def _limpar_para_contagem(texto: str) -> str:
-    """Remove tags HTML residuais e formatações Markdown estritamente
+    """Remove tags HTML residuais, links e formatações Markdown estritamente
 
-    para fins de métrica de tamanho de texto.
+    para fins de métrica precisa de tamanho de texto.
     """
     if not texto:
         return ""
 
     texto_limpo = html.unescape(texto)
     texto_limpo = re.sub(r"<[^>]+>", " ", texto_limpo)
-    texto_limpo = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", texto_limpo)
+    texto_limpo = re.sub(r"\[([^\]]+)\]\([^)]+\)", "", texto_limpo)
     texto_limpo = re.sub(r"[*_~`#>]", " ", texto_limpo)
+    texto_limpo = re.sub(r"https?://\S+", "", texto_limpo)
     return re.sub(r"\s+", " ", texto_limpo).strip()
 
 
 def filtrar_e_ordenar(dados_limpos):
     """Filtra itens já processados pelo histórico, remove ruídos via filters.py,
 
-    aplica filtro de tamanho mínimo e organiza a ordem cronológica.
+    aplica filtro de tamanho mínimo rigoroso e organiza a ordem cronológica.
     """
     print("[3/4] Processando itens, aplicando filtros de ruído, qualidade e histórico...")
 

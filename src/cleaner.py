@@ -9,7 +9,7 @@ from .filters import limpar_texto_com_filtros
 def limpar_html(texto_html: str) -> str:
     """Converte o HTML do RSS para Markdown limpo, aplicando a sanitização
 
-    do módulo filters.py e efetuando ajustes tipográficos e de espaçamento.
+    do módulo filters.py, removendo lixos residuais e efetuando ajustes tipográficos.
     """
     if not texto_html:
         return ""
@@ -28,11 +28,16 @@ def limpar_html(texto_html: str) -> str:
     # 3. Delegação estrita ao módulo filters.py (remove frases da blacklist, regexes de syndication e placeholders)
     texto_filtrado = limpar_texto_com_filtros(markdown)
 
-    # 4. Ajustes tipográficos: remove espaços residuais entre aspas de abertura e pontuações
+    # 4. Remove marcações indesejadas de markdown residual (colchetes vazios ou asteriscos soltos)
+    texto_filtrado = re.sub(r"\[\s*\]\([^)]+\)", "", texto_filtrado)
+    texto_filtrado = re.sub(r"\*{2,}", "", texto_filtrado)
+    texto_filtrado = re.sub(r"https?://\S+", "", texto_filtrado)
+
+    # 5. Ajustes tipográficos: remove espaços residuais entre aspas de abertura e pontuações
     texto_final = re.sub(r'([“"‘’])\s+([_*\w])', r'\1\2', texto_filtrado)
     texto_final = re.sub(r"\s+([,\.\?!”\)])", r"\1", texto_final)
 
-    # 5. Normaliza múltiplos saltos de linha em no máximo duas quebras (parágrafos limpos)
+    # 6. Normaliza múltiplos saltos de linha em no máximo duas quebras (parágrafos limpos)
     texto_final = re.sub(r"\n{3,}", "\n\n", texto_final)
 
     return texto_final.strip()

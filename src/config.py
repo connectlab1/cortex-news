@@ -26,6 +26,6 @@ RSS_FEEDS = {
     "TudoCelular": "https://www.tudocelular.com/feed/",
 }
 
-# Critérios de Qualidade e Formatação de Slugs/URLs
-MIN_PALAVRAS = 40
+# Critérios de Qualidade e Formatação de Slugs/URLs (Aumentado para barrar posts curtos/rasos)
+MIN_PALAVRAS = 70
 MAX_SLUG_LENGTH = 40

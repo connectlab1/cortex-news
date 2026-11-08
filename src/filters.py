@@ -12,8 +12,7 @@ BLACKLIST_EXACT_PHRASES = [
     "Veja as melhores promoções de hoje no WhatsApp do CT Ofertas",
 ]
 
-# Expressões regulares restritas a rodapés de syndication e links promocionais isolados
-# Utilizam re.MULTILINE para garantir checagem segura linha por linha
+# Expressões regulares restritas a rodapés de syndication, links promocionais e avisos isolados
 BLACKLIST_REGEX_PATTERNS = [
     # Remove avisos padrão de syndication (ex: "O post X apareceu primeiro em Y.")
     re.compile(r"^O post\s+.+?\s+apareceu primeiro em\s+.+?(\.|$)", re.IGNORECASE | re.MULTILINE),
@@ -21,6 +20,8 @@ BLACKLIST_REGEX_PATTERNS = [
     re.compile(r"^\s*📱\s*Veja as melhores promoções.*$", re.IGNORECASE | re.MULTILINE),
     # Remove avisos genéricos de direitos autorais de syndication no rodapé
     re.compile(r"^©.*todos os direitos reservados.*$", re.IGNORECASE | re.MULTILINE),
+    # Remove chamadas genéricas de rodapé ou botões de compartilhamento
+    re.compile(r"^\s*(compartilhe|leia mais|siga-nos|inscreva-se).*$", re.IGNORECASE | re.MULTILINE),
 ]
 
 
