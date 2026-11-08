@@ -1,6 +1,6 @@
 # 🚀 Cortex News ETL Pipeline & Blog Jekyll
 
-Um pipeline ETL (Extract, Transform, Load) automatizado, modular, blindado e resiliente em Python e Shell Script para Arch Linux / Linux CLI, totalmente integrado a um site estático baseado em **Jekyll**. O sistema rastreia feeds RSS de portais de tecnologia brasileiros, aplica limpeza rigorosa de HTML e regras de syndication/blacklist, remove duplicatas persistentes via histórico atômico, converte para Markdown formatado com Front Matter e executa o deploy automatizado para o GitHub.
+Um pipeline ETL (Extract, Transform, Load) automatizado, modular, blindado e resiliente em Python e Shell Script para Arch Linux / Linux CLI, totalmente integrado a um site estático baseado em **Jekyll**. O sistema rastreia feeds RSS de portais de tecnologia brasileiros, aplica limpeza rigorosa de HTML e regras de syndication/blacklist, remove duplicatas persistentes via histórico atômico, converte para Markdown formatado com Front Matter e executa o deploy automatizado para o GitHub (suportando tanto novos posts quanto atualizações estruturais do projeto).
 
 ## 📌 Arquitetura e Pipeline ETL
 
@@ -15,7 +15,7 @@ O pipeline foi projetado seguindo o princípio de **Separação de Responsabilid
                                                           v
 +------------------+     +-----------------+     +-------------------+
 |    deploy.sh     | <-- | src/history.py  | <-- | src/generator.py  |
-|  (Git/Rebase)    |     | (Escrita Atômica|     | (Markdown Jekyll) |
+| (Stash/Rebase/SSH|     | (Escrita Atômica|     | (Markdown Jekyll) |
 +------------------+     +-----------------+     +-------------------+
 ```
 
@@ -28,7 +28,7 @@ O pipeline foi projetado seguindo o princípio de **Separação de Responsabilid
 
 2. **Limpeza e Sanitização (`src/cleaner.py` + `src/filters.py`):**
    - Converte HTML bruto em Markdown legível via `html2text`.
-   - Delegates rigorosamente todas as remoções de frases promocionais, avisos de syndication, placeholders e expressões regulares para o módulo dedicado **`src/filters.py`**.
+   - Delega rigorosamente todas as remoções de frases promocionais, avisos de syndication, placeholders e expressões regulares para o módulo dedicado **`src/filters.py`**.
    - Executa correções tipográficas (espaçamentos de aspas, pontuações e quebras de linha duplicadas).
 
 3. **Processamento e Qualidade (`src/processor.py`):**
@@ -46,10 +46,10 @@ O pipeline foi projetado seguindo o princípio de **Separação de Responsabilid
    - Adiciona o cabeçalho Front Matter do Jekyll (título, portal de origem, data formatada em ISO, layout).
    - Sanitiza o nome do arquivo combinando slug do título (máx. 40 chars) e hash MD5 curto da URL para evitar conflitos de sobreescrita.
 
-6. **Orquestração e Deploy (`main.py` + `deploy.sh`):**
+6. **Orquestração Inteligente e Deploy (`main.py` + `deploy.sh`):**
    - O `main.py` roda como um daemon persistente (loop de 1 hora) no terminal do Arch Linux com banners coloridos ANSI e alertas sonoros (``).
-   - Valida a existência e aplica permissões de execução (`chmod +x`) em `deploy.sh`.
-   - O `deploy.sh` versiona estritamente as pastas `_posts/` e `data/`, executa `git pull --rebase` (evitando telas interativas de merge em caso de concorrência remota) e envia os commits via SSH.
+   - Verifica se há novos posts **ou** alterações locais na árvore de arquivos via Git (`git status --porcelain`). Caso haja qualquer modificação estrutural (em scripts `src/`, layouts, `_config.yml`, etc.), o deploy é disparado automaticamente.
+   - O `deploy.sh` protege o ambiente usando `git stash` temporário antes do `git pull --rebase` (evitando erros de arquivos modificados não preparados), realiza o envio via SSH de forma limpa e aborta com segurança em caso de conflitos insolúveis.
 
 ---
 
@@ -74,12 +74,12 @@ O pipeline foi projetado seguindo o princípio de **Separação de Responsabilid
 │   ├── filters.py          # Centralizador de blacklists, regexes de syndication e frases proibidas
 │   ├── generator.py        # Geração dos arquivos .md com Front Matter do Jekyll
 │   ├── history.py          # Leitura e escrita atômica do histórico JSON (os.replace)
-│   ├── processor.py        # Filtro de qualidade, contagem real de palavras e ordenação cronológica
+│   ├── processor.py        # Validação de qualidade, contagem real de palavras e ordenação cronológica
 │   └── scraper.py          # Requisição HTTP por bytes crus, validação de URLs e parser RSS
 ├── _config.yml             # Configurações globais do Jekyll
-├── deploy.sh               # Script oficial de deploy Git automatizado (pull --rebase + push SSH)
+├── deploy.sh               # Script oficial de deploy Git automatizado (stash + pull rebase + push SSH)
 ├── index.html              # Página inicial do blog
-├── main.py                 # Orquestrador contínuo do pipeline ETL (Loop 1h + Alertas ANSI)
+├── main.py                 # Orquestrador contínuo do pipeline ETL (Loop 1h + Detecção de Mudanças + Alertas)
 ├── README.md               # Documentação técnica do projeto
 └── requirements.txt        # Dependências Python do projeto
 ```
@@ -90,8 +90,8 @@ O pipeline foi projetado seguindo o princípio de **Separação de Responsabilid
 
 * **Escrita Atômica em Disco:** Nenhuma alteração direta no `historico.json` sem antes validar o buffer em arquivo `.tmp`, garantindo 0% de risco de arquivo corrompido ou zerado.
 * **Autenticação SSH:** Deploy para o GitHub utilizando autenticação por chave SSH (`git@github.com:connectlab1/cortex-news.git`).
-* **Deploy sem Bloqueio de Terminal:** O script `deploy.sh` utiliza `git pull --rebase` e abortagem automática em caso de divergência grave (`git rebase --abort`), impedindo que o daemon trave aguardando input do usuário.
-* **Sanitização de UTF-8:** Tratamento de feeds com encodings variados direto em nível de bytes.
+* **Deploy com Stash de Segurança:** O script `deploy.sh` utiliza salvamento automático em `git stash` antes de puxar atualizações remotas via `git pull --rebase`, prevenindo falhas de working tree suja.
+* **Orquestração Baseada em Mudanças:** O `main.py` não se limita apenas ao RSS: qualquer ajuste de código ou layout local é detectado e publicado de forma autônoma.
 
 ---
 
