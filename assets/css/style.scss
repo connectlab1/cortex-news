@@ -1,6 +1,6 @@
-css_content = """/* ==========================================
-Cortex News - Dark Theme SCSS (Complete & Production Ready)
-========================================== */
+/* ==========================================
+ C *ortex News - Dark Theme SCSS (Complete & Production Ready)
+ ========================================== */
 
 :root {
   --bg-primary: #0f1115;
@@ -266,6 +266,33 @@ body {
     background-color: var(--bg-secondary);
     color: var(--text-muted);
     border-radius: 0 4px 4px 0;
+  }
+}
+
+/* Botão de Copiar para Blocos de Código (Gerado pelo main.js) */
+.copy-code-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: var(--bg-card);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+
+  &.copied {
+    background-color: var(--success);
+    color: #ffffff;
+    border-color: var(--success);
   }
 }
 

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="{{ page.lang | default: site.lang | default: 'pt-BR' }}">
 <head>
   <meta charset="utf-8">
@@ -8,7 +7,6 @@
   <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
 
   <!-- Carregamento Automático do CSS (Sass compilado) -->
-
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
   {% feed_meta %}
   {% seo %}
@@ -16,11 +14,10 @@
 <body>
 
   <!-- Cabeçalho Global -->
-
   <header class="site-header" role="banner">
     <div class="wrapper">
       <a class="site-title" rel="author" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
-      <nav class="site-nav">
+      <nav class="site-nav nav-links">
         <a class="page-link" href="{{ '/' | relative_url }}">Início</a>
         <a class="page-link" href="{{ '/sobre.html' | relative_url }}">Sobre</a>
       </nav>
@@ -28,7 +25,6 @@
   </header>
 
   <!-- Conteúdo Principal -->
-
   <main class="page-content" aria-label="Content">
     <div class="wrapper">
       {{ content }}
@@ -36,7 +32,6 @@
   </main>
 
   <!-- Rodapé Global -->
-
   <footer class="site-footer h-card">
     <div class="wrapper">
       <div class="footer-col-wrapper">
@@ -46,7 +41,6 @@
   </footer>
 
   <!-- Carregamento do JavaScript Global -->
-
   <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
 
 </body>

@@ -3,11 +3,11 @@ layout: default
 title: "Início"
 ---
 
-<div class="hero-section" style="padding: 2.5rem 0 3rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 2.5rem;">
-  <h1 style="font-size: 2.5rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem;">
-    Cortex <span style="color: var(--accent);">News</span> ⚡
+<div class="hero-section">
+  <h1>
+    Cortex <span>News</span> ⚡
   </h1>
-  <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 650px; line-height: 1.6;">
+  <p>
     Laboratório automatizado de engenharia de dados, monitoramento de feeds RSS e pipelines ETL em Python integrados ao Jekyll.
   </p>
 </div>
@@ -51,17 +51,16 @@ title: "Início"
 {% if paginator.total_pages > 1 %}
   <nav class="pagination-container" aria-label="Navegação de Páginas">
 
-    {% comment %} Botão Página Anterior {% endcomment %}
     {% if paginator.previous_page %}
       {% if paginator.previous_page == 1 %}
         <a href="{{ '/' | relative_url }}" class="pagination-btn">&laquo; Anterior</a>
       {% else %}
-        <a href="{{ paginator.previous_page_path | relative_url }}" class="pagination-btn">&laquo; Anterior</a>
+        {% assign prev_path = site.paginate_path | replace: ':num', paginator.previous_page %}
+        <a href="{{ prev_path | relative_url }}" class="pagination-btn">&laquo; Anterior</a>
       {% endif %}
     {% endif %}
 
     <div class="pagination-numbers">
-      {% comment %} Define o intervalo de páginas limitando a 10 itens visíveis {% endcomment %}
       {% assign total = paginator.total_pages %}
       {% assign current = paginator.page %}
 
@@ -89,20 +88,19 @@ title: "Início"
         {% elsif i == 1 %}
           <a href="{{ '/' | relative_url }}" class="page-number">{{ i }}</a>
         {% else %}
-          <a href="{{ site.paginate_path | relative_url | replace: ':num', i }}" class="page-number">{{ i }}</a>
+          {% assign page_url = site.paginate_path | replace: ':num', i %}
+          <a href="{{ page_url | relative_url }}" class="page-number">{{ i }}</a>
         {% endif %}
       {% endfor %}
     </div>
 
-    {% comment %} Botões Próxima e Última Página (>>) {% endcomment %}
     {% if paginator.next_page %}
-      <a href="{{ paginator.next_page_path | relative_url }}" class="pagination-btn">Próxima &rsaquo;</a>
+      {% assign next_path = site.paginate_path | replace: ':num', paginator.next_page %}
+      <a href="{{ next_path | relative_url }}" class="pagination-btn">Próxima &rsaquo;</a>
+
       {% if paginator.page < paginator.total_pages %}
-        {% if paginator.total_pages == 2 %}
-          <a href="{{ site.paginate_path | relative_url | replace: ':num', paginator.total_pages }}" class="pagination-btn" title="Última Página">&raquo;&raquo;</a>
-        {% else %}
-          <a href="{{ site.paginate_path | relative_url | replace: ':num', paginator.total_pages }}" class="pagination-btn" title="Última Página">&raquo;&raquo;</a>
-        {% endif %}
+        {% assign last_path = site.paginate_path | replace: ':num', paginator.total_pages %}
+        <a href="{{ last_path | relative_url }}" class="pagination-btn" title="Última Página">&raquo;&raquo;</a>
       {% endif %}
     {% endif %}
 
