@@ -1,25 +1,25 @@
 #!/bin/bash
 
-# Interrompe o script se qualquer comando falhar
+# Interrompe o script imediatamente se ocorrer qualquer erro
 set -e
 
-echo "==> Adicionando arquivos ao Git..."
+echo "==> Adicionando alterações ao controle de versão..."
 git add .
 
-# Verifica se há alterações para commitar
+# Verifica se há arquivos modificados ou novos posts para commitar
 if [ -n "$(git status --porcelain)" ]; then
-    # Usa o argumento passado no terminal como mensagem, ou uma mensagem padrão
-    MSG="${1:-atualizacao automatica: posts e layouts}"
+    # Usa a mensagem passada por argumento ou uma padrão descritiva
+    MSG="${1:-feat: atualização automática de posts e layouts}"
     echo "==> Criando commit: \"$MSG\""
     git commit -m "$MSG"
 else
-    echo "==> Nenhuma alteração nova para commitar."
+    echo "==> Nenhuma alteração nova detectada para commit."
 fi
 
-echo "==> Sincronizando com o GitHub (git pull)..."
+echo "==> Sincronizando com o repositório remoto (git pull)..."
 git pull origin main --no-rebase
 
-echo "==> Enviando atualizações para o GitHub (git push)..."
+echo "==> Enviando alterações para o GitHub (git push)..."
 git push origin main
 
-echo "==> Concluído com sucesso!"
+echo "==> Deploy enviado com sucesso! O GitHub Actions já está processando a publicação do site."

@@ -1,18 +1,47 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ page.lang | default: site.lang | default: 'pt-BR' }}">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% if page.title %}{{ page.title }} - Cortex News{% else %}Cortex News{% endif %}</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+
+  <!-- Carregamento Automático do CSS (Sass compilado) -->
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% feed_meta %}
+  {% seo %}
 </head>
 <body>
+
+  <!-- Cabeçalho Global -->
+  <header class="site-header" role="banner">
+    <div class="wrapper">
+      <a class="site-title" rel="author" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
+      <nav class="site-nav">
+        <a class="page-link" href="{{ '/' | relative_url }}">Início</a>
+        <a class="page-link" href="{{ '/sobre/' | relative_url }}">Sobre</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
   <main class="page-content" aria-label="Content">
-    {{ content }}
+    <div class="wrapper">
+      {{ content }}
+    </div>
   </main>
 
-  <footer class="site-footer" style="text-align: center; padding: 2rem 0; color: var(--meta-color, #8b949e); font-size: 0.85rem; border-top: 1px solid var(--border-color, #30363d); margin-top: 4rem;">
-    <p>Cortex News &copy; {{ site.time | date: '%Y' }} — Pipeline ETL Automatizado com Python & GitHub Actions.</p>
+  <!-- Rodapé Global -->
+  <footer class="site-footer h-card">
+    <div class="wrapper">
+      <div class="footer-col-wrapper">
+        <p>&copy; {{ 'now' | date: "%Y" }} {{ site.title }}. Todos os direitos reservados.</p>
+      </div>
+    </div>
   </footer>
+
+  <!-- Carregamento do JavaScript Global -->
+  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+
 </body>
 </html>

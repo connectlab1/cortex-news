@@ -1,20 +1,52 @@
+# ==========================================
+# Configurações Globais do Cortex News
+# ==========================================
 title: "Cortex News"
-description: "Fluxo automatizado de notícias e tecnologia."
-url: "https://connectlab1.github.io/cortex-news"
-baseurl: ""
+email: "contato@connectlab.ddns.net"
+description: "Fluxo automatizado de notícias, tecnologia e automação."
+url: "https://connectlab1.github.io"
+baseurl: "/cortex-news"
 
-# Aplica automaticamente o layout 'post' para tudo dentro de _posts/
-defaults:
-  - scope:
-      path: ""
-      type: "posts"
-    values:
-      layout: "post"
+author:
+  name: "Jean de Arruda"
+  github: "connectlab1"
 
-# Ignora os arquivos do bot Python durante o build do GitHub Pages
+# ==========================================
+# Compilação Sass / SCSS
+# ==========================================
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+# ==========================================
+# Paginação (jekyll-paginate)
+# ==========================================
+paginate: 6
+paginate_path: "/page:num/"
+
+# ==========================================
+# Formatação de Datas e Permalinks
+# ==========================================
+permalink: /:categories/:year/:month/:day/:title/
+timezone: "America/Sao_Paulo"
+
+# ==========================================
+# Plugins e Exclusões de Build
+# ==========================================
+plugins:
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-seo-tag
+
 exclude:
+  - README.md
+  - LICENSE
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/
+  - .github/
   - src/
   - venv/
   - requirements.txt
   - main.py
-  - .github/

@@ -1,46 +1,79 @@
 ---
 layout: default
-title: Cortex News
+title: "Início"
 ---
 
-<div class="home">
-  <header class="home-header">
-    <h1 class="page-heading">Cortex News</h1>
-    <p class="site-subtitle">Fluxo automatizado de notícias, tecnologia e automação.</p>
-  </header>
-
-  <!-- Barra de Pesquisa em Tempo Real -->
-  <div class="search-container">
-    <input type="text" id="search-input" placeholder="Pesquisar notícias..." autocomplete="off">
-  </div>
-
-  <div class="posts-container">
-    {% if site.posts.size > 0 %}
-      <ul class="post-list">
-        {% for post in site.posts %}
-          <li class="post-item">
-            <span class="post-meta">{{ post.date | date: "%d/%m/%Y" }}</span>
-
-            <h2 class="post-title">
-              <a class="post-link" href="{{ post.url | relative_url }}">
-                {{ post.title | escape }}
-              </a>
-            </h2>
-
-            {% if post.excerpt %}
-              <div class="post-excerpt">
-                {{ post.excerpt | strip_html | truncatewords: 35 }}
-              </div>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="no-posts">Nenhum post gerado pelo Cortex ainda. Aguardando a primeira execução do pipeline ETL!</p>
-    {% endif %}
-  </div>
+<div class="hero-section" style="padding: 2rem 0 3rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 2.5rem;">
+  <h1 style="font-size: 2.5rem; font-weight: 800; color: #ffffff; margin-bottom: 1rem;">
+    Cortex <span style="color: var(--accent);">News</span> ⚡
+  </h1>
+  <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 650px; line-height: 1.6;">
+    Fluxo automatizado de notícias, tecnologia, inteligência artificial e automação gerado por pipeline ETL em Python.
+  </p>
 </div>
 
-<!-- Vinculando o CSS e o JS externos -->
-<link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-<script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+<h2 style="font-size: 1.4rem; font-weight: 600; color: var(--text-main); margin-bottom: 1.5rem;">
+  📰 Últimas Notícias e Artigos
+</h2>
+
+<div class="posts-grid">
+  {% for post in paginator.posts %}
+    <article class="post-card">
+      {% if post.categories.size > 0 %}
+        <div class="post-categories">
+          {% for category in post.categories %}
+            <span class="category-badge">{{ category }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <h2 class="post-title">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h2>
+
+      <p class="post-date">
+        <time datetime="{{ post.date | date_to_xmlschema }}">
+          {{ post.date | date: "%d/%m/%Y" }}
+        </time>
+      </p>
+
+      {% if post.description %}
+        <p class="post-excerpt">{{ post.description }}</p>
+      {% else %}
+        <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 25 }}</p>
+      {% endif %}
+
+      <a href="{{ post.url | relative_url }}" class="read-more">Ler artigo &rarr;</a>
+    </article>
+  {% endfor %}
+</div>
+
+{% if paginator.total_pages > 1 %}
+  <nav class="pagination-container" aria-label="Navegação de Páginas">
+
+    {% if paginator.previous_page %}
+      {% if paginator.previous_page == 1 %}
+        <a href="{{ '/' | relative_url }}" class="pagination-btn">&laquo; Anterior</a>
+      {% else %}
+        <a href="{{ paginator.previous_page_path | relative_url }}" class="pagination-btn">&laquo; Anterior</a>
+      {% endif %}
+    {% endif %}
+
+    <div class="pagination-numbers">
+      {% for i in (1..paginator.total_pages) %}
+        {% if i == paginator.page %}
+          <span class="page-number current">{{ i }}</span>
+        {% elsif i == 1 %}
+          <a href="{{ '/' | relative_url }}" class="page-number">{{ i }}</a>
+        {% else %}
+          <a href="{{ site.paginate_path | relative_url | replace: ':num', i }}" class="page-number">{{ i }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {% if paginator.next_page %}
+      <a href="{{ paginator.next_page_path | relative_url }}" class="pagination-btn">Próxima &raquo;</a>
+    {% endif %}
+
+  </nav>
+{% endif %}
