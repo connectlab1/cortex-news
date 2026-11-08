@@ -1,4 +1,6 @@
 import os
+import time
+from datetime import datetime
 from src.cleaner import limpar_e_tratar_dados
 from src.config import DATA_DIR, POSTS_DIR
 from src.generator import gerar_arquivo_jekyll
@@ -15,7 +17,7 @@ def garantir_diretorios():
 
 def executar_pipeline():
   print("=" * 60)
-  print("🚀 Iniciando Pipeline ETL: RSS para Jekyll")
+  print(f"🚀 [ {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} ] Iniciando Pipeline ETL: RSS para Jekyll")
   print("=" * 60)
 
   try:
@@ -24,7 +26,7 @@ def executar_pipeline():
     # 1. Extração
     dados_brutos = buscar_feeds()
     if not dados_brutos:
-      print("[Main] Nenhum dado coletado. Encerrando execução.")
+      print("[Main] Nenhum dado coletado nesta execução.")
       return
 
     # 2. Limpeza
@@ -41,8 +43,11 @@ def executar_pipeline():
     links_novos_processados = []
 
     for item in itens_aprovados:
-      gerar_arquivo_jekyll(item)
-      links_novos_processados.append(item["link"])
+      try:
+        gerar_arquivo_jekyll(item)
+        links_novos_processados.append(item["link"])
+      except Exception as e:
+        print(f"[Main] Erro ao gerar post para o link {item.get('link')}: {e}")
 
     # 5. Atualização do Histórico
     if links_novos_processados:
@@ -57,8 +62,16 @@ def executar_pipeline():
 
   except Exception as e:
     print(f"[Main] Erro crítico inesperado na execução do pipeline: {e}")
-    raise
 
 
 if __name__ == "__main__":
-  executar_pipeline()
+  INTERVALO_SEGUNDOS = 3600  # 3600 segundos = 1 hora
+  print("🤖 Robô de ETL persistente iniciado. Pressione Ctrl+C para encerrar.")
+
+  try:
+    while True:
+      executar_pipeline()
+      print(f"⏳ Próxima execução em 1 hora. Aguardando...")
+      time.sleep(INTERVALO_SEGUNDOS)
+  except KeyboardInterrupt:
+    print("\n🛑 Execução interrompida manualmente pelo usuário. Saindo...")
