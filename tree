@@ -15,15 +15,18 @@ tree
 │   └── post.html
 ├── main.py
 ├── _posts
-│   ├── 2026-11-06-nome-do-post.md
+│   └── 2026-11-08-exemplo-de-post.md
+├── README.md
 ├── requirements.txt
-└── src
-    ├── cleaner.py
-    ├── config.py
-    ├── filters.py
-    ├── generator.py
-    ├── history.py
-    ├── __init__.py
-    ├── processor.py
-    ├── __pycache__
-    └── scraper.py
+├── sobre.html
+├── src
+│   ├── cleaner.py
+│   ├── config.py
+│   ├── filters.py
+│   ├── generator.py
+│   ├── history.py
+│   ├── __init__.py
+│   ├── processor.py
+│   ├── __pycache__
+│   └── scraper.py
+└── tree
