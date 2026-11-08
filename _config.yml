@@ -51,3 +51,8 @@ exclude:
   - requirements.txt
   - main.py
 ```[cite: 7]
+
+### Dica para o CachyOS (Linux) ao salvar:
+Se você estiver editando o arquivo direto no terminal ou via VS Code no seu CachyOS, garanta que a codificação de fim de linha esteja configurada como **LF** (e não CRLF do Windows). No terminal, você pode rodar o comando abaixo para normalizar as quebras de linha caso necessário:
+```bash
+dos2unix _config.yml
