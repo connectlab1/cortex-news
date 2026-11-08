@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if page.title %}{{ page.title }} - Cortex News{% else %}Cortex News{% endif %}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+  <main class="page-content" aria-label="Content">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer" style="text-align: center; padding: 2rem 0; color: var(--meta-color, #8b949e); font-size: 0.85rem; border-top: 1px solid var(--border-color, #30363d); margin-top: 4rem;">
+    <p>Cortex News &copy; {{ site.time | date: '%Y' }} — Pipeline ETL Automatizado com Python & GitHub Actions.</p>
+  </footer>
+</body>
+</html>

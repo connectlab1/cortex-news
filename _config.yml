@@ -1,0 +1,20 @@
+title: "Cortex News"
+description: "Fluxo automatizado de notícias e tecnologia."
+url: "https://connectlab1.github.io/cortex-news"
+baseurl: ""
+
+# Aplica automaticamente o layout 'post' para tudo dentro de _posts/
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+
+# Ignora os arquivos do bot Python durante o build do GitHub Pages
+exclude:
+  - src/
+  - venv/
+  - requirements.txt
+  - main.py
+  - .github/

@@ -1,0 +1,21 @@
+---
+layout: default
+---
+
+<article class="post">
+  <header class="post-header">
+    <a href="{{ '/' | relative_url }}" class="back-link" style="color: var(--link-color, #58a6ff); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 1.2rem;">&larr; Voltar para a página inicial</a>
+
+    <div class="post-meta">
+      <time datetime="{{ page.date }}" itemprop="datePublished">
+        {{ page.date | date: "%d/%m/%Y" }}
+      </time>
+    </div>
+
+    <h1>{{ page.title | escape }}</h1>
+  </header>
+
+  <div class="post-content">
+    {{ content }}
+  </div>
+</article>
