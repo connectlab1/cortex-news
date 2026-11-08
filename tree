@@ -1,0 +1,31 @@
+tree
+
+├── assets
+│   ├── css
+│   │   └── style.scss
+│   └── js
+│       └── main.js
+├── _config.yml
+├── data
+│   └── historico.json
+├── deploy1.sh
+├── deploy.sh
+├── index.html
+├── _layouts
+│   ├── default.html
+│   └── post.html
+├── main1.py
+├── main.py
+├── _posts
+│   ├── 2026-11-06-nome-do-post.md
+├── requirements.txt
+└── src
+    ├── cleaner.py
+    ├── config.py
+    ├── filters.py
+    ├── generator.py
+    ├── history.py
+    ├── __init__.py
+    ├── processor.py
+    ├── __pycache__
+    └── scraper.py
