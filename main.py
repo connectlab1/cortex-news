@@ -115,7 +115,7 @@ def executar_pipeline():
             # Alerta sonoro + pausa de segurança
             emitir_alerta_terminal()
             print(f"\n{YELLOW}{BOLD}⏳ Aguardando 3 segundos antes de iniciar o deploy ({script_deploy})...{RESET}")
-            time.sleep(3)
+            time.sleep(1)
 
             # Aciona o script de deploy capturando e unificando stdout e stderr
             print(f"{BLUE}{BOLD}🚀 Executando deploy via {script_deploy}...{RESET}\n")
