@@ -1,130 +1,50 @@
-# 🚀 Cortex News ETL Pipeline & Blog Jekyll
+# ⚡ Cortex News
 
-Um pipeline ETL (Extract, Transform, Load) automatizado, modular, blindado e resiliente em Python e Shell Script para Arch Linux / Linux CLI, totalmente integrado a um site estático baseado em **Jekyll**. O sistema rastreia feeds RSS de portais de tecnologia brasileiros, aplica limpeza rigorosa de HTML e regras de syndication/blacklist, remove duplicatas persistentes via histórico atômico, converte para Markdown formatado com Front Matter e executa o deploy automatizado para o GitHub (suportando tanto novos posts quanto atualizações estruturais do projeto).
+> **Pipeline ETL de Notícias & Blog Automatizado em Jekyll**
 
-## 📌 Arquitetura e Pipeline ETL
-
-O pipeline foi projetado seguindo o princípio de **Separação de Responsabilidades (SoC)**, onde cada módulo do diretório `src/` desempenha um papel estrito e isolado no ciclo de processamento.
-
-```
-+------------------+     +-----------------+     +-------------------+
-|  src/scraper.py  | --> |  src/cleaner.py | --> | src/processor.py  |
-| (Coleta RSS/UTC) |     |  (HTML2Text/MD) |     | (Qualidade/Duplic)|
-+------------------+     +-----------------+     +-------------------+
-                                                          |
-                                                          v
-+------------------+     +-----------------+     +-------------------+
-|    deploy.sh     | <-- | src/history.py  | <-- | src/generator.py  |
-| (Stash/Rebase/SSH|     | (Escrita Atômica|     | (Markdown Jekyll) |
-+------------------+     +-----------------+     +-------------------+
-```
-
-### 🔄 Etapas Detalhadas do Pipeline
-
-1. **Extração (`src/scraper.py`):**
-   - Varre as fontes RSS brasileiras configuradas em `src/config.py`.
-   - Utiliza bytes crus (`response.content`) com o `feedparser` para autodetectar a codificação de caracteres (evitando problemas de acentuação/`mojibake`).
-   - Garante a extração de URLs absolutas (`http://` / `https://`) e padroniza datas em objetos `datetime` conscientes de timezone (UTC).
-
-2. **Limpeza e Sanitização (`src/cleaner.py` + `src/filters.py`):**
-   - Converte HTML bruto em Markdown legível via `html2text`.
-   - Delega rigorosamente todas as remoções de frases promocionais, avisos de syndication, placeholders e expressões regulares para o módulo dedicado **`src/filters.py`**.
-   - Executa correções tipográficas (espaçamentos de aspas, pontuações e quebras de linha duplicadas).
-
-3. **Processamento e Qualidade (`src/processor.py`):**
-   - Importa o histórico persistido de links processados.
-   - Remove duplicatas existentes no banco histórico e itens repetidos no próprio lote atual.
-   - Aplica a regra de qualidade filtrando notícias com contagem real de palavras inferior ao parâmetro `MIN_PALAVRAS` (definido em `src/config.py`).
-   - Atualiza a descrição limpa no dicionário e ordena cronologicamente do post mais antigo para o mais recente.
-
-4. **Persistência Atômica (`src/history.py`):**
-   - Evita corrupções de arquivo em caso de desligamento ou interrupções utilizando escrita atômica (`.tmp` + `os.replace`).
-   - Deduplica, sanitiza e ordena alfabeticamente os links gravados em `data/historico.json`.
-
-5. **Geração de Conteúdo (`src/generator.py`):**
-   - Cria postagens em formato Markdown no diretório `_posts/`.
-   - Adiciona o cabeçalho Front Matter do Jekyll (título, portal de origem, data formatada em ISO, layout).
-   - Sanitiza o nome do arquivo combinando slug do título (máx. 40 chars) e hash MD5 curto da URL para evitar conflitos de sobreescrita.
-
-6. **Orquestração Inteligente e Deploy (`main.py` + `deploy.sh`):**
-   - O `main.py` roda como um daemon persistente (loop de 1 hora) no terminal do Arch Linux com banners coloridos ANSI e alertas sonoros (``).
-   - Verifica se há novos posts **ou** alterações locais na árvore de arquivos via Git (`git status --porcelain`). Caso haja qualquer modificação estrutural (em scripts `src/`, layouts, `_config.yml`, etc.), o deploy é disparado automaticamente.
-   - O `deploy.sh` protege o ambiente usando `git stash` temporário antes do `git pull --rebase` (evitando erros de arquivos modificados não preparados), realiza o envio via SSH de forma limpa e aborta com segurança em caso de conflitos insolúveis.
+O **Cortex News** é um laboratório automatizado de engenharia de dados que realiza a coleta, limpeza, filtragem e conversão de feeds RSS de tecnologia em postagens otimizadas para um blog estático gerado em Jekyll.
 
 ---
 
-## 📂 Estrutura Completa do Projeto
+## 🚀 Destaques do Projeto
 
-```
-.
-├── assets/                 # Recursos estáticos do front-end
-│   ├── css/
-│   │   └── style.scss      # Estilos customizados (Sass)
-│   └── js/
-│       └── main.js         # Scripts JavaScript do site
-├── data/
-│   └── historico.json      # Registro persistente atômico de links já processados
-├── _layouts/               # Templates HTML do Jekyll
-│   ├── default.html        # Layout base da aplicação
-│   └── post.html           # Template dos artigos de notícias
-├── _posts/                 # Diretório de destino dos arquivos Markdown gerados
-├── src/                    # Módulos Python da engine ETL
-│   ├── cleaner.py          # Conversão HTML para Markdown e formatação tipográfica
-│   ├── config.py           # Configurações globais, feeds RSS e parâmetros (timeouts, MIN_PALAVRAS)
-│   ├── filters.py          # Centralizador de blacklists, regexes de syndication e frases proibidas
-│   ├── generator.py        # Geração dos arquivos .md com Front Matter do Jekyll
-│   ├── history.py          # Leitura e escrita atômica do histórico JSON (os.replace)
-│   ├── processor.py        # Validação de qualidade, contagem real de palavras e ordenação cronológica
-│   └── scraper.py          # Requisição HTTP por bytes crus, validação de URLs e parser RSS
-├── _config.yml             # Configurações globais do Jekyll
-├── deploy.sh               # Script oficial de deploy Git automatizado (stash + pull rebase + push SSH)
-├── index.html              # Página inicial do blog
-├── main.py                 # Orquestrador contínuo do pipeline ETL (Loop 1h + Detecção de Mudanças + Alertas)
-├── README.md               # Documentação técnica do projeto
-└── requirements.txt        # Dependências Python do projeto
-```
+* 🔄 **Pipeline ETL Robusto:** Coleta automatizada com tratamento de encoding (bytes crus) e parsing de datas UTC.  
+* 🧹 **Sanitização de Dados:** Conversão de HTML para Markdown com remoção rigorosa de conteúdos institucionais e propaganda via `src/filters.py`.  
+* 🛡️ **Persistência Atômica:** Histórico persistido em JSON (`data/historico.json`) com substituição atômica (`os.replace`) contra corrupção de dados.  
+* 💻 **Modo de Desenvolvimento Isolado:** Scripts dedicados (`main-manual.py` e `main-automatico.py`) para testes locais seguros sem disparo de deploy acidental.
 
 ---
 
-## 🔒 Segurança, Resiliência e Integridade
+## 🛠️ Stack Tecnológica
 
-* **Escrita Atômica em Disco:** Nenhuma alteração direta no `historico.json` sem antes validar o buffer em arquivo `.tmp`, garantindo 0% de risco de arquivo corrompido ou zerado.
-* **Autenticação SSH:** Deploy para o GitHub utilizando autenticação por chave SSH (`git@github.com:connectlab1/cortex-news.git`).
-* **Deploy com Stash de Segurança:** O script `deploy.sh` utiliza salvamento automático em `git stash` antes de puxar atualizações remotas via `git pull --rebase`, prevenindo falhas de working tree suja.
-* **Orquestração Baseada em Mudanças:** O `main.py` não se limita apenas ao RSS: qualquer ajuste de código ou layout local é detectado e publicado de forma autônoma.
+* **Linguagens:** Python 3 (ETL e automações) \| Ruby 3.4 (Jekyll / Bundler)  
+* **Sistema de Destino:** CachyOS / Arch Linux CLI  
+* **Publicação:** GitHub Pages (com suporte a deploy local automatizado)
 
 ---
 
-## 🛠️ Como Instalar e Executar
+## 📖 Documentação Completa (Wiki)
 
-### 1. Pré-requisitos e Dependências
+Para guias detalhados de instalação, estrutura de pastas e solução de erros, acesse a nossa **Wiki**:
 
-Certifique-se de ter o Python 3.x instalado e instale os pacotes listados no `requirements.txt`:
+* 📘 [Visão Geral e Arquitetura do Projeto](http://wiki/Visao-Geral)  
+* 🛠️ [Guia de Instalação e Configuração do Ambiente](http://wiki/Instalacao)  
+* 💻 [Modo de Uso Local e Scripts Python](http://wiki/Uso-Local)  
+* 🔧 [Manual de Resolução de Problemas (Troubleshooting)](http://wiki/Troubleshooting)
 
-```bash
+---
+
+### ⚡ Quick Start Local
+
+```sh
+# 1. Instalar dependências
 pip install -r requirements.txt
+bundle install
+
+# 2. Executar o pipeline local
+python main-manual.py
+
+# 3. Subir o servidor de desenvolvimento
+bundle exec jekyll serve --baseurl ""
 ```
 
-### 2. Executar o Robô de Produção (`main.py`)
-
-Para iniciar o daemon ETL contínuo (executa imediatamente e depois aguarda em intervalos de 1 hora):
-
-```bash
-python3 main.py
-```
-
-### 3. Disparo Manual do Deploy (`deploy.sh`)
-
-Se desejar versionar e enviar alterações pendentes manualmente para o GitHub:
-
-```bash
-./deploy.sh
-```
-
----
-
-## 📝 Regras de Qualidade e Boas Práticas
-
-* **Isolamento do `filters.py`:** Toda e qualquer regra de filtragem textual (expressões regulares de syndication, frases institucionais, placeholders) é mantida exclusivamente no arquivo `src/filters.py`.
-* **Slugificação MD5:** Todo post gerado possui slug sanitizado + hash da URL original, garantindo que matérias com títulos parecidos não sobrescrevam o mesmo arquivo `.md`.
-* **Formatação Jekyll Front Matter:** Todo arquivo Markdown gerado é compatível com geradores de sites estáticos.
