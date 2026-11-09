@@ -1,0 +1,24 @@
+<aside class="sidebar-panel">
+  <div class="sidebar-widget">
+    <h3>📌 Posts Recentes</h3>
+    <ul class="sidebar-posts-list">
+      {% for post in site.posts limit:5 %}
+        <li>
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <span class="sidebar-date">{{ post.date | date: "%d/%m/%Y" }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="sidebar-widget">
+    <h3>🏷️ Categorias</h3>
+    <div class="sidebar-tags">
+      {% for category in site.categories %}
+        <a href="{{ '/' | relative_url }}#{{ category.first | slugify }}" class="category-badge">
+          {{ category.first }} ({{ category.last.size }})
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</aside>
