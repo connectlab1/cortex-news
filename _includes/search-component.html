@@ -1,16 +1,15 @@
 <div class="sidebar-widget">
   <h3>🔍 Pesquisar</h3>
-  <div class="search-container" style="margin-top: 0.5rem;">
+  <div class="search-container" style="margin-top: 0.75rem;">
     <input
       type="text"
       id="search-input"
       data-search-json="{{ '/search.json' | relative_url }}"
       placeholder="Digite para buscar..."
-      style="width: 100%; padding: 0.6rem 0.8rem; font-size: 0.9rem; border: 1px solid var(--border-color, #ccc); border-radius: 6px; background: var(--bg-card, #fff); color: var(--text-main, #333);"
+      style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; font-size: 0.9rem; border: 1px solid var(--border-color, #333); border-radius: 6px; background: var(--bg-input, #1e1e1e); color: var(--text-main, #fff);"
     >
   </div>
   <div id="search-results" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.8rem;"></div>
 </div>
 
-<!-- Importação do script modularizado de busca -->
 <script src="{{ '/assets/js/search.js' | relative_url }}"></script>

@@ -2,26 +2,38 @@
   <!-- Widget de Pesquisa integrado no topo da barra lateral -->
   {% include search-component.html %}
 
+  <!-- Widget de Posts Recentes Colapsável -->
   <div class="sidebar-widget">
-    <h3>📌 Posts Recentes</h3>
-    <ul class="sidebar-posts-list">
-      {% for post in site.posts limit:5 %}
-        <li>
-          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-          <span class="sidebar-date">{{ post.date | date: "%d/%m/%Y" }}</span>
-        </li>
-      {% endfor %}
-    </ul>
+    <details open>
+      <summary style="cursor: pointer; font-weight: bold; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <span>📌 Posts Recentes</span>
+        <span class="toggle-icon">▼</span>
+      </summary>
+      <ul class="sidebar-posts-list" style="margin-top: 1rem;">
+        {% for post in site.posts limit:5 %}
+          <li>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <span class="sidebar-date">{{ post.date | date: "%d/%m/%Y" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
   </div>
 
+  <!-- Widget de Categorias Colapsável -->
   <div class="sidebar-widget">
-    <h3>🏷️ Categorias</h3>
-    <div class="sidebar-tags">
-      {% for category in site.categories %}
-        <a href="{{ '/' | relative_url }}#{{ category.first | slugify }}" class="category-badge">
-          {{ category.first }} ({{ category.last.size }})
-        </a>
-      {% endfor %}
-    </div>
+    <details open>
+      <summary style="cursor: pointer; font-weight: bold; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+        <span>🏷️ Categorias</span>
+        <span class="toggle-icon">▼</span>
+      </summary>
+      <div class="sidebar-tags" style="margin-top: 1rem;">
+        {% for category in site.categories %}
+          <a href="{{ '/' | relative_url }}#{{ category.first | slugify }}" class="category-badge">
+            {{ category.first }} ({{ category.last.size }})
+          </a>
+        {% endfor %}
+      </div>
+    </details>
   </div>
 </aside>
