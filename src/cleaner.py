@@ -1,15 +1,21 @@
+"""Módulo centralizado para limpeza e conversão de HTML de feeds RSS
+
+para Markdown limpo, estruturado e higienizado.
+"""
+
 from datetime import datetime, timezone
 import html
 import re
 from email.utils import parsedate_to_datetime
 import html2text
+from .dictionary import aplicar_dicionario_termos
 from .filters import limpar_texto_com_filtros
 
 
 def limpar_html(texto_html: str) -> str:
-    """Converte o HTML do RSS para Markdown limpo, aplicando a sanitização
+    """Converte o HTML do RSS para Markdown limpo, organizando parágrafos,
 
-    do módulo filters.py, removendo lixos residuais e efetuando ajustes tipográficos.
+    aplicando o dicionário externo de termos e os filtros de syndication.
     """
     if not texto_html:
         return ""
@@ -19,34 +25,44 @@ def limpar_html(texto_html: str) -> str:
 
     # 2. Converte HTML para Markdown formatado
     h = html2text.HTML2Text()
-    h.ignore_links = True
+    h.ignore_links = False  # Preserva os links das matérias e referências
     h.ignore_images = True
-    h.body_width = 0
+    h.body_width = 0  # Desativa quebras artificiais de linha por largura
 
     markdown = h.handle(texto_decodificado)
 
-    # 3. Delegação estrita ao módulo filters.py (remove frases da blacklist, regexes de syndication e placeholders)
+    # 3. Formatação e separação de estrutura
+    # Preserva quebras de linha em listas numeradas (ex: "1. Item; 2. Item;" -> "1. Item\n2. Item")
+    markdown = re.sub(r";\s*(\d+\.\s+)", r";\n\1", markdown)
+
+    # Garante que itens de lista com marcadores (ex: * Compre...) fiquem em novas linhas
+    markdown = re.sub(r"([^\n])\s*\*\s+(Compre|Veja|Confira)", r"\1\n* \2", markdown)
+
+    # Garante espaçamento adequado (linha dupla) antes de subtítulos (##)
+    markdown = re.sub(r"([^\n])\n(#{1,6}\s+)", r"\1\n\n\2", markdown)
+
+    # 4. Sanitização modular via filters.py (remove rodapés e lixos de RSS)
     texto_filtrado = limpar_texto_com_filtros(markdown)
 
-    # 4. Remove marcações indesejadas de markdown residual (colchetes vazios ou asteriscos soltos)
+    # 5. Aplicação do dicionário externo para correção de marcas e termos técnicos
+    texto_filtrado = aplicar_dicionario_termos(texto_filtrado)
+
+    # 6. Remove marcações residuais de markdown (colchetes vazios ou links soltos)
     texto_filtrado = re.sub(r"\[\s*\]\([^)]+\)", "", texto_filtrado)
-    texto_filtrado = re.sub(r"\*{2,}", "", texto_filtrado)
-    texto_filtrado = re.sub(r"https?://\S+", "", texto_filtrado)
 
-    # 5. Ajustes tipográficos: remove espaços residuais entre aspas de abertura e pontuações
-    texto_final = re.sub(r'([“"‘’])\s+([_*\w])', r'\1\2', texto_filtrado)
-    texto_final = re.sub(r"\s+([,\.\?!”\)])", r"\1", texto_final)
+    # 7. Normaliza múltiplos saltos de linha em no máximo duas quebras (parágrafos limpos)
+    texto_final = re.sub(r"\n{3,}", "\n\n", texto_filtrado)
 
-    # 6. Normaliza múltiplos saltos de linha em no máximo duas quebras (parágrafos limpos)
-    texto_final = re.sub(r"\n{3,}", "\n\n", texto_final)
+    # 8. Corrige espaços indesejados antes de pontuações (ex: "palavra , texto" -> "palavra, texto")
+    texto_final = re.sub(r"\s+([,\.;!?])", r"\1", texto_final)
 
     return texto_final.strip()
 
 
 def limpar_e_tratar_dados(dados_brutos):
-    """Recebe os dados brutos vindos do scraper e executa a limpeza
+    """Recebe a lista de dados brutos do scraper e executa a conversão,
 
-    modularizada de HTML, formatação tipográfica e preservação de metadados.
+    higienização e padronização dos metadados dos posts.
     """
     print("[2/4] Limpando e convertendo HTML com base no dicionário de filtros...")
 
@@ -65,7 +81,7 @@ def limpar_e_tratar_dados(dados_brutos):
         link = item.get("link", "").strip()
         portal = item.get("portal", "Desconhecido")
 
-        # Preserva o objeto data_obj criado na etapa de scraping ou aplica fallback seguro em UTC
+        # Preserva o objeto data_obj criado no scraping ou atribui fallback UTC
         data_obj = item.get("data_obj")
         if not isinstance(data_obj, datetime):
             data_str = item.get("data_str", "")
@@ -74,7 +90,7 @@ def limpar_e_tratar_dados(dados_brutos):
             except Exception:
                 data_obj = datetime.now(timezone.utc)
 
-        # Garante que dados mínimos e válidos existam antes de repassar ao processor
+        # Garante que apenas itens válidos com título e link sejam mantidos
         if titulo and link:
             dados_limpos.append({
                 "portal": portal,

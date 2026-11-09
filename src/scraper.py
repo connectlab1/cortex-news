@@ -1,3 +1,8 @@
+"""Módulo centralizado para coleta, extração e normalização de dados
+
+dos feeds RSS configurados no projeto.
+"""
+
 from datetime import datetime, timezone
 import feedparser
 import requests
@@ -37,20 +42,18 @@ def buscar_feeds():
             response = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
             response.raise_for_status()
 
-            # Passa os bytes crus (response.content) para o feedparser autodetectar a codificação de caracteres (charset/encoding)
+            # Passa os bytes crus (response.content) para o feedparser autodetectar a codificação de caracteres
             feed = feedparser.parse(response.content)
 
             if not feed.entries:
                 print(f"[Scraper] Aviso: Nenhuma entrada encontrada no feed de {portal}.")
                 continue
 
-            # Nota informativa se houveram pequenos alertas de sintaxe XML (bozo), prosseguindo com as entradas extraídas
             if feed.get("bozo", 0) == 1:
                 print(f"[Scraper] Nota: Feed de {portal} possui alertas de formatação XML (bozo), prosseguindo...")
 
             contador_portal = 0
             for entry in feed.entries:
-                # Extração segura dos campos básicos do RSS
                 titulo = entry.get("title", "").strip()
                 link = entry.get("link", "").strip()
 
@@ -59,7 +62,7 @@ def buscar_feeds():
                     print(f"[Scraper] Link relativo ou inválido descartado em {portal}: {link}")
                     continue
 
-                # Tenta capturar o sumário ou o conteúdo completo disponível na tag de conteúdo do feed
+                # Captura o sumário ou o conteúdo completo disponível na tag de conteúdo do feed
                 descricao = entry.get("summary", "").strip()
                 if not descricao and "content" in entry:
                     content_list = entry["content"]
@@ -69,7 +72,6 @@ def buscar_feeds():
                 # Extrai e padroniza a data em objeto datetime consciente (UTC)
                 data_obj = _extrair_data_entrada(entry)
 
-                # Validação de integridade básica dos campos essenciais
                 if titulo and link:
                     dados_brutos.append({
                         "portal": portal,

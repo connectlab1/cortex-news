@@ -1,108 +1,107 @@
+"""Módulo centralizado de processamento, validação de word count,
+
+geração de slugs e persistência de posts no diretório _posts do Jekyll.
+"""
+
 from datetime import datetime, timezone
+import os
 import re
-import html
-from src.config import MIN_PALAVRAS
-from src.history import carregar_historico
-from src.filters import limpar_texto_com_filtros
+import unicodedata
+
+from .config import MAX_SLUG_LENGTH, POSTS_DIR
+from .history import carregar_historico, salvar_historico
+from .rules import montar_front_matter, validar_regras_post
 
 
-def _obter_timestamp(item):
-    """Retorna um valor seguro de datetime em UTC para ordenação cronológica.
+def gerar_slug(titulo: str) -> str:
+    """Gera um slug limpo, URL-friendly e com limite de tamanho a partir do título."""
+    if not titulo:
+        return "post-sem-titulo"
 
-    Trata casos onde as datas possuem ou não fuso horário (naive vs. aware)
-    para evitar erros de comparação durante o .sort().
+    # Normaliza caracteres especiais e remove acentos
+    nfkd_form = unicodedata.normalize("NFKD", titulo)
+    texto_limpo = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
+    # Converte para minúsculas e substitui caracteres não alfanuméricos por hífens
+    slug = re.sub(r"[^a-z0-9]+", "-", texto_limpo.lower()).strip("-")
+
+    # Corta no limite configurado, garantindo que não termine em hífen quebrado
+    if len(slug) > MAX_SLUG_LENGTH:
+        slug = slug[:MAX_SLUG_LENGTH].rsplit("-", 1)[0]
+
+    return slug or "post"
+
+
+def processar_e_salvar_posts(dados_limpos):
+    """Processa os dados limpos aplicando as regras centrais de validação,
+
+    evita duplicatas e salva os arquivos Markdown no formato padrão do Jekyll.
     """
-    dt = item.get("data_obj")
-    if not isinstance(dt, datetime):
-        return datetime.min.replace(tzinfo=timezone.utc)
-
-    if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-
-    return dt
-
-
-def _limpar_para_contagem(texto: str) -> str:
-    """Remove tags HTML residuais, links e formatações Markdown estritamente
-
-    para fins de métrica precisa de tamanho de texto.
-    """
-    if not texto:
-        return ""
-
-    texto_limpo = html.unescape(texto)
-    texto_limpo = re.sub(r"<[^>]+>", " ", texto_limpo)
-    texto_limpo = re.sub(r"\[([^\]]+)\]\([^)]+\)", "", texto_limpo)
-    texto_limpo = re.sub(r"[*_~`#>]", " ", texto_limpo)
-    texto_limpo = re.sub(r"https?://\S+", "", texto_limpo)
-    return re.sub(r"\s+", " ", texto_limpo).strip()
-
-
-def filtrar_e_ordenar(dados_limpos):
-    """Filtra itens já processados pelo histórico, remove ruídos via filters.py,
-
-    aplica filtro de tamanho mínimo rigoroso e organiza a ordem cronológica.
-    """
-    print("[3/4] Processando itens, aplicando filtros de ruído, qualidade e histórico...")
+    print("[3/4] Processando posts, validando regras e gerando arquivos Jekyll...")
 
     if not dados_limpos:
-        print("[Processor] Nenhum item recebido para processamento.")
-        return []
+        print("[Processor] Nenhum dado limpo recebido para processamento.")
+        return 0
 
-    historico = set(carregar_historico() or [])
-    links_vistos_no_lote = set()
+    os.makedirs(POSTS_DIR, exist_ok=True)
 
-    novos_itens = []
-    contador_duplicados = 0
-    contador_curtos = 0
-    contador_invalidos = 0
+    # Carrega histórico atômico
+    historico_lista = carregar_historico()
+    historico_set = set(historico_lista)
+
+    posts_salvos = 0
+    novos_links_adicionados = []
 
     for item in dados_limpos:
-        if not isinstance(item, dict):
-            contador_invalidos += 1
+        link = item.get("link")
+        if not link or link in historico_set:
             continue
 
-        link = item.get("link", "").strip()
-        titulo = item.get("titulo", "Sem Título").strip()
-        descricao_bruta = item.get("descricao") or ""
+        titulo = item.get("titulo", "")
+        descricao = item.get("descricao", "")
+        portal = item.get("portal", "Tech")
+        data_obj = item.get("data_obj", datetime.now(timezone.utc))
 
-        if not link:
-            contador_invalidos += 1
+        # Validação centralizada através do módulo rules.py (única fonte de regras de negócio)
+        valido, mensagem_status = validar_regras_post(titulo, descricao, link)
+        if not valido:
+            print(f"[Processor] Ignorado: {titulo[:40]}... -> {mensagem_status}")
             continue
 
-        # 1. Filtro de duplicatas (histórico ou lote atual)
-        if link in historico or link in links_vistos_no_lote:
-            contador_duplicados += 1
-            continue
+        # Gera slug e nome do arquivo Jekyll (YYYY-MM-DD-slug.md)
+        slug = gerar_slug(titulo)
+        data_str_jelly = data_obj.strftime("%Y-%m-%d")
+        nome_arquivo = f"{data_str_jelly}-{slug}.md"
+        caminho_arquivo = os.path.join(POSTS_DIR, nome_arquivo)
 
-        # 2. Aplica as regras de blacklist/ruídos centralizadas no módulo filters.py
-        descricao_sem_ruido = limpar_texto_com_filtros(descricao_bruta)
+        # Evita sobreposição de arquivos com nomes idênticos no mesmo dia
+        contador = 1
+        base_nome, ext = os.path.splitext(nome_arquivo)
+        while os.path.exists(caminho_arquivo):
+            nome_arquivo = f"{base_nome}-{contador}{ext}"
+            caminho_arquivo = os.path.join(POSTS_DIR, nome_arquivo)
+            contador += 1
 
-        # Atualiza a descrição no item para que o gerador receba o conteúdo limpo
-        item["descricao"] = descricao_sem_ruido
+        # Formatação do Front Matter utilizando o modelo padrão de rules.py
+        data_iso = data_obj.strftime("%Y-%m-%d %H:%M:%S %z")
+        front_matter = montar_front_matter(titulo, data_iso, portal, link)
+        conteudo_final = f"{front_matter}\n{descricao}\n"
 
-        # 3. Sanitização estrutural para contagem precisa de palavras
-        descricao_para_contagem = _limpar_para_contagem(descricao_sem_ruido)
-        total_palavras = len(descricao_para_contagem.split()) if descricao_para_contagem else 0
+        try:
+            with open(caminho_arquivo, "w", encoding="utf-8") as f:
+                f.write(conteudo_final)
 
-        # 4. Filtro de qualidade por tamanho mínimo
-        if total_palavras >= MIN_PALAVRAS:
-            novos_itens.append(item)
-            links_vistos_no_lote.add(link)
-        else:
-            contador_curtos += 1
-            portal = item.get("portal", "Desconhecido")
-            print(
-                f"[Processor] Ignorado ({portal} - muito curto: {total_palavras} palavras): "
-                f"\"{titulo}\""
-            )
+            historico_set.add(link)
+            novos_links_adicionados.append(link)
+            posts_salvos += 1
+            print(f"[Processor] Post salvo: {nome_arquivo}")
+        except Exception as e:
+            print(f"[Processor] Erro ao salvar o arquivo {nome_arquivo}: {e}")
 
-    # 5. Ordenação cronológica segura
-    novos_itens.sort(key=_obter_timestamp)
+    # Salva o histórico de forma atômica se houver novos itens
+    if novos_links_adicionados:
+        historico_atualizado = historico_lista + novos_links_adicionados
+        salvar_historico(historico_atualizado)
 
-    print(
-        f"[Processor] Resumo: {len(novos_itens)} aprovados | "
-        f"{contador_duplicados} duplicados | {contador_curtos} curtos | "
-        f"{contador_invalidos} inválidos."
-    )
-    return novos_itens
+    print(f"[Processor] Processamento concluído. {posts_salvos} novos posts gerados.")
+    return posts_salvos

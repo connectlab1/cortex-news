@@ -1,89 +1,52 @@
-from datetime import datetime
-import hashlib
-import os
-import re
-import unicodedata
-from .config import POSTS_DIR
+"""Módulo centralizado para orquestração da pipeline ETL (Fetch -> Clean -> Process),
 
-
-def gerar_slug(titulo: str) -> str:
-    """Gera um slug totalmente sanitizado, sem acentos e seguro para URLs do Jekyll.
-
-    Exemplo: "Guia definitivo: Saiba qual versão do Gemini você realmente deve usar"
-    Retorna: "guia-definitivo-saiba-qual-versao-do-gemini"
-    """
-    # 1. Converte para minúsculas e decompõe caracteres acentuados (NFKD)
-    nfkd_form = unicodedata.normalize("NFKD", titulo.lower())
-    slug_sem_acento = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
-
-    # 2. Mantém apenas caracteres alfanuméricos simples e espaços
-    slug_base = "".join(c for c in slug_sem_acento if c.isalnum() or c.isspace())
-
-    # 3. Substitui espaços sequenciais por um único hífen e remove hífens nas extremidades
-    slug_limpo = re.sub(r"\s+", "-", slug_base).strip("-")
-    slug_limpo = re.sub(r"-+", "-", slug_limpo)
-
-    # 4. Trunca mantendo o limite de tamanho sem cortar palavras/hífens no meio
-    return slug_limpo[:40].rstrip("-")
-
-
-def gerar_arquivo_jekyll(item):
-    """Gera um arquivo Markdown (.md) padronizado para o Jekyll.
-
-    Garante sanitização estrita de URLs (sem acentos nem códigos %XX)
-    e previne colisões de nomes de arquivos.
-    """
-    link = item.get("link", "").strip()
-
-    # Validação de URL absoluta para evitar links relativos quebrados
-    if not link.startswith(("http://", "https://")):
-        print(f"[Generator] Aviso: Link inválido ou relativo detectado ({link}). Post ignorado.")
-        return
-
-    os.makedirs(POSTS_DIR, exist_ok=True)
-
-    data_obj = item["data_obj"]
-    data_arquivo = data_obj.strftime("%Y-%m-%d")
-    data_frontmatter = data_obj.strftime("%Y-%m-%d %H:%M:%S %z")
-
-    titulo = item["titulo"]
-    portal = item["portal"]
-
-    # 1. Prevenção de colisão: Gera um hash curto de 6 caracteres baseado no link único da notícia
-    hash_link = hashlib.md5(link.encode("utf-8")).hexdigest()[:6]
-
-    # 2. Gera o slug totalmente sanitizado (sem acentos nem símbolos especiais)
-    slug_limpo = gerar_slug(titulo)
-
-    # Nome final do arquivo combinando data, slug limpo e hash único anti-colisão
-    nome_arquivo = f"{data_arquivo}-{slug_limpo}-{hash_link}.md"
-    caminho_completo = os.path.join(POSTS_DIR, nome_arquivo)
-
-    # Escapa aspas duplas de forma segura para o YAML Front Matter
-    titulo_yaml = titulo.replace('"', '\\"')
-    portal_yaml = portal.replace('"', '\\"')
-
-    # 3. Montagem do post Markdown seguindo os padrões do Jekyll
-    conteudo_markdown = f"""---
-layout: post
-title: "{titulo_yaml}"
-date: {data_frontmatter}
-categories: [{portal_yaml}]
----
-
-{item['descricao']}
-
----
-
-> **Gostou do assunto?** Para conferir todos os detalhes, imagens originais e a discussão completa, acesse a matéria original.
->
-> 👉 **[Ler artigo completo no {portal}]({link})**
+gerenciando a execução completa e registrando logs de status do build.
 """
 
-    # Escreve o arquivo no disco com codificação UTF-8 estrita
+from datetime import datetime, timezone
+
+from .cleaner import limpar_e_tratar_dados
+from .processor import processar_e_salvar_posts
+
+
+def buscar_feeds_rss():
+    """Executa a coleta dos feeds RSS importando a função correta do scraper."""
+    print("[1/4] Coletando dados dos feeds RSS...")
+
     try:
-        with open(caminho_completo, "w", encoding="utf-8") as f:
-            f.write(conteudo_markdown)
-        print(f"[Generator] Post criado com sucesso: {nome_arquivo}")
-    except IOError as e:
-        print(f"[Generator] Erro ao criar o arquivo {nome_arquivo}: {e}")
+        from .scraper import buscar_feeds
+        return buscar_feeds()
+    except ImportError as e:
+        print(f"[Generator] Erro ao importar o scraper: {e}. Retornando lista vazia.")
+        return []
+
+
+def executar_pipeline():
+    """Executa a rotina completa da pipeline de ponta a ponta."""
+    inicio = datetime.now(timezone.utc)
+    print(f"=== [Cortex News 2] Iniciando pipeline em {inicio.strftime('%Y-%m-%d %H:%M:%S %Z')} ===")
+
+    # Passo 1: Coleta dos dados brutos dos feeds RSS
+    dados_brutos = buscar_feeds_rss()
+    if not dados_brutos:
+        print("[Generator] Nenhum dado bruto coletado. Encerrando pipeline.")
+        return 0
+
+    # Passo 2: Limpeza, conversão para Markdown, filtros e aplicação do dicionário
+    dados_limpos = limpar_e_tratar_dados(dados_brutos)
+    if not dados_limpos:
+        print("[Generator] Nenhum dado restou após a limpeza. Encerrando pipeline.")
+        return 0
+
+    # Passo 3: Processamento, validação de limite de palavras, deduplicação atômica e salvamento no Jekyll
+    posts_gerados = processar_e_salvar_posts(dados_limpos)
+
+    fim = datetime.now(timezone.utc)
+    duracao = (fim - inicio).total_seconds()
+    print(f"=== [Cortex News 2] Pipeline concluída com sucesso em {duracao:.2f}s. Total de posts gerados: {posts_gerados} ===")
+
+    return posts_gerados
+
+
+if __name__ == "__main__":
+    executar_pipeline()

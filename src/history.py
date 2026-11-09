@@ -1,7 +1,12 @@
+"""Módulo centralizado para gerenciamento, carregamento e salvamento atômico
+
+do histórico de links processados, garantindo deduplicação e resiliência.
+"""
+
 from datetime import datetime
 import json
 import os
-from src.config import HISTORY_FILE
+from .config import HISTORY_FILE
 
 
 def carregar_historico():

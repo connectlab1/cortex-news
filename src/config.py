@@ -1,21 +1,26 @@
+"""Módulo centralizado de configurações, diretórios, timeouts e constantes
+
+da pipeline ETL do Cortex News 2.
+"""
+
 import os
 
-# Diretórios Base do Projeto
+# Diretórios Base do Projeto (Cortex News 2)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 POSTS_DIR = os.path.join(BASE_DIR, "_posts")
 HISTORY_FILE = os.path.join(DATA_DIR, "historico.json")
 
-# Configurações de Rede e Scraper
+# Configurações de Rede, Timeout e User-Agent para o Scraper
 REQUEST_TIMEOUT = 10
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
-        " CachyOS RSS Bot/1.0"
+        " CachyOS RSS Bot/1.0 (+https://github.com/cortex-news)"
     )
 }
 
-# Feeds RSS monitorados (Tecnologia em Português)
+# Feeds RSS monitorados (Portais de Tecnologia em Português)
 RSS_FEEDS = {
     "Canaltech": "https://canaltech.com.br/rss/",
     "Olhar Digital": "https://olhardigital.com.br/feed/",
@@ -26,6 +31,8 @@ RSS_FEEDS = {
     "TudoCelular": "https://www.tudocelular.com/feed/",
 }
 
-# Critérios de Qualidade e Formatação de Slugs/URLs (Aumentado para barrar posts curtos/rasos)
-MIN_PALAVRAS = 70
+# Critérios de Qualidade, Contrato de Posts e Formatação de Slugs/URLs
+MIN_PALAVRAS = 150
 MAX_SLUG_LENGTH = 40
+LAYOUT_OBRIGATORIO = "post"
+CATEGORIAS_PADRAO = "Tech"
