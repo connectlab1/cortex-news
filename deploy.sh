@@ -47,7 +47,7 @@ fi
 
 echo -e "${BLUE}${BOLD}==> Adicionando alterações ao controle de versão...${RESET}"
 # Adiciona posts, dados, testes, documentação e estrutura essencial do projeto
-git add _posts/ data/ src/ test/ assets/ _layouts/ _includes/ doc/ _config.yml index.html *.html README.md *.sh *.py *.json requirements.txt 2>/dev/null || git add .
+git add _posts/ data/ src/ test/ assets/ _layouts/ _includes/ doc/ _sass/ _config.yml index.html *.html README.md *.sh *.py requirements.txt 2>/dev/null || git add .
 
 if [ -n "$(git status --porcelain)" ]; then
     MSG="${1:-feat: atualização automática da pipeline ETL, testes e posts}"

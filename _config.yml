@@ -15,7 +15,6 @@ author:
 # Compilação Sass / SCSS
 # ==========================================
 sass:
-  sass_dir: assets/css
   style: compressed
 
 # ==========================================
