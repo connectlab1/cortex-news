@@ -17,7 +17,7 @@ git remote set-url origin git@github.com:connectlab1/cortex-news.git
 
 echo -e "${BLUE}${BOLD}==> Adicionando alterações, scripts e posts ao controle de versão...${RESET}"
 # Adiciona posts, dados e toda a estrutura essencial do projeto
-git add _posts/ data/ src/ assets/ _layouts/ _config.yml index.html *.html README.md deploy.sh main.py requirements.txt debug.py diagrama.txt main_dev.py 2>/dev/null || git add .
+git add _posts/ data/ src/ assets/ _layouts/ _config.yml index.html *.html README.md *.sh *.py requirements.txt 2>/dev/null || git add .
 
 # Verifica se há qualquer alteração pendente para commitar
 if [ -n "$(git status --porcelain)" ]; then
