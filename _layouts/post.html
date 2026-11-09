@@ -20,4 +20,43 @@ layout: default
     {{ content }}
   </div>
 
+  <!-- COLE O BLOCO DE ARTIGOS RELACIONADOS AQUI -->
+  <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border-color, #eee);">
+
+  <section class="related-posts" style="margin-top: 2rem;">
+    <h3 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-main, #333);">🔗 Artigos Relacionados</h3>
+    <div class="related-grid" style="display: grid; gap: 1rem;">
+      {% assign max_related = 3 %}
+      {% assign counter = 0 %}
+
+      {% for post in site.posts %}
+        {% if post.url != page.url %}
+          {% assign share_common = false %}
+
+          {% for category in post.categories %}
+            {% if page.categories contains category %}
+              {% assign share_common = true %}
+            {% endif %}
+          {% endfor %}
+
+          {% if share_common and counter < max_related %}
+            <div class="related-card" style="padding: 0.8rem; background: var(--bg-card, #f9f9f9); border-radius: 6px;">
+              <a href="{{ post.url | relative_url }}" style="font-weight: 600; text-decoration: none; color: var(--brand-color, #007acc);">
+                {{ post.title }}
+              </a>
+              <span style="display: block; font-size: 0.85rem; color: #666; margin-top: 0.3rem;">
+                {{ post.date | date: "%d/%m/%Y" }} • {{ post.categories | join: ", " }}
+              </span>
+            </div>
+            {% assign counter = counter | plus: 1 %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if counter == 0 %}
+        <p style="font-size: 0.9rem; color: #666; font-style: italic;">Nenhum artigo relacionado encontrado no momento.</p>
+      {% endif %}
+    </div>
+  </section>
+
 </article>
