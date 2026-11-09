@@ -1,0 +1,37 @@
+---
+layout: post
+title: "O que é a chamada \"Crise do COBOL\" e como a IA pode ajudar a resolver?"
+date: 2026-11-08 21:00:00 +0000
+categories: [Canaltech]
+link: "https://canaltech.com.br/inteligencia-artificial/o-que-e-a-crise-do-cobol-e-como-ia-pode-ajudar/"
+---
+
+Uma linguagem de programação **criada em 1959 ainda é relevante** décadas depois e encontra dificuldades para ser atualizado a sistemas mais novos. É o caso do **COBOL**, sistema de legal muito usado no segmento bancário, e que pode ter uma “crise” resolvida pela IA.
+
+O COBOL enfrenta um dilema no qual a linguagem já se tornou **ultrapassada** e**não tem mão de obra especializada** no mercado. No entanto, ainda é usado no dia a dia por fazer parte da infraestrutura de serviços críticos e uma transição drástica poderia resultar em problemas maiores.
+
+O avanço no desenvolvimento dos modelos de IA**abre uma janela para migrar todos os sistemas** para linguagens mais atualizadas, como C++, mas ainda traz uma série de desafios.
+
+## O que é COBOL?
+
+Sigla em inglês para “Linguagem Comum Orientada para os Negócios”, **COBOL** é uma linguagem de programação otimizada para processar grandes quantidades de dados.
+
+A precisão para lidar com casas decimais e a simplicidade da linguagem fizeram com que o código fosse amplamente usado em **sistemas de transações financeiras**, como caixas eletrônicos e operações com cartões de crédito ou débito. Um relatório da Revista Internacional de Pesquisa Avançada em Ciência, Comunicação e Tecnologia aponta que**43% das operações bancárias usavam a linguagem em 2023**.
+
+Por ser usado em serviços cruciais, a base de código foi mantida com o passar dos anos e não foi atualizada para alternativas mais modernas. Além disso, profissionais não são especializados na área e muitas empresas não documentaram suas respectivas plataformas para facilitar a migração, o que gera uma **“crise do COBOL”**.
+
+## Como a IA pode resolver o problema?
+
+A inteligência artificial desponta como uma alternativa para enfim viabilizar a migração para outras linguagens mais recentes. Modelos mais avançados podem ser usados não apenas para traduzir o código, mas também para **analisar comportamentos de cada plataforma** para garantir uma atualização estável.
+
+Para o Chefe de IA e Diretor de Inovação da MakeOne, Filipe Santos, a maior vantagem da tecnologia é a**compreensão dos dados**. “Em muitos bancos, seguradoras e órgãos públicos, a regra de negócio só existe dentro do COBOL: a documentação se perdeu e quem escreveu já se aposentou. A IA hoje lê esse legado, explica a lógica, documenta regras e gera testes, e a partir daí a tradução ficou viável”, comenta ao **Canaltech**.
+
+Por outro lado, os esforços de migração têm algumas barreiras, como a **verificação de que um sistema novo se comportaria da mesma forma** que a versão antiga. “Migrar não é trocar de linguagem, é mexer num ecossistema de mainframe, rotinas batch, integrações e décadas de ajustes. O gargalo passa a ser a verificação”, completa Santos.
+
+### A resposta da OpenAI
+
+Criadora do ChatGPT, a OpenAI publicou um relatório em outubro para destacar alguns avanços em linguagens com pouca documentação disponível. A empresa destacou que modelos mais recentes tiveram **desempenho superior em testes para migrar programas COBOL para C++, Java, Python, Rust e Kotlin**.
+
+Ainda que a IA tenha resultado positivo, os testes ainda mostram situações delicadas que precisam de maior atenção. Um exemplo envolve regras de arredondamento: o COBOL descarta casas decimais excedentes, enquanto outros sistemas podem adotar uma regra diferente para o mesmo caso. Essa simples mudança poderia gerar um impacto muito grande no meio financeiro.
+
+Leia também: [As linguagens de programação mais usadas nas principais profissões de tecnologia](https://canaltech.com.br/mercado/as-linguagens-de-programacao-mais-usadas-nas-principais-profissoes-de-tecnologia/)

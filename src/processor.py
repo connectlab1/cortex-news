@@ -45,9 +45,11 @@ def processar_e_salvar_posts(dados_limpos):
 
     os.makedirs(POSTS_DIR, exist_ok=True)
 
-    # Carrega histórico atômico
+    # Carrega histórico atômico (retorna lista de dicionários)
     historico_lista = carregar_historico()
-    historico_set = set(historico_lista)
+
+    # Cria um conjunto (set) apenas com as strings dos links para busca rápida e segura
+    historico_set = {item["link"] for item in historico_lista if isinstance(item, dict) and "link" in item}
 
     posts_salvos = 0
     novos_links_adicionados = []
@@ -62,7 +64,7 @@ def processar_e_salvar_posts(dados_limpos):
         portal = item.get("portal", "Tech")
         data_obj = item.get("data_obj", datetime.now(timezone.utc))
 
-        # Validação centralizada através do módulo rules.py (única fonte de regras de negócio)
+        # Validação centralizada através do módulo rules.py
         valido, mensagem_status = validar_regras_post(titulo, descricao, link)
         if not valido:
             print(f"[Processor] Ignorado: {titulo[:40]}... -> {mensagem_status}")
@@ -92,13 +94,19 @@ def processar_e_salvar_posts(dados_limpos):
                 f.write(conteudo_final)
 
             historico_set.add(link)
-            novos_links_adicionados.append(link)
+
+            # Adiciona ao histórico o dicionário completo com o link e o nome do arquivo
+            novos_links_adicionados.append({
+                "link": link,
+                "arquivo": nome_arquivo
+            })
+
             posts_salvos += 1
             print(f"[Processor] Post salvo: {nome_arquivo}")
         except Exception as e:
             print(f"[Processor] Erro ao salvar o arquivo {nome_arquivo}: {e}")
 
-    # Salva o histórico de forma atômica se houver novos itens
+    # Salva o histórico estruturado de forma atômica se houver novos itens
     if novos_links_adicionados:
         historico_atualizado = historico_lista + novos_links_adicionados
         salvar_historico(historico_atualizado)
