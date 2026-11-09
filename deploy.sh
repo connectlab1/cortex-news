@@ -3,6 +3,9 @@
 # Interrompe o script imediatamente se ocorrer qualquer erro não tratado
 set -e
 
+# Força o Git a utilizar a chave SSH correta localizada em ~/.ssh/connectlab1
+export GIT_SSH_COMMAND="ssh -i ~/.ssh/connectlab1 -o IdentitiesOnly=yes -F /dev/null"
+
 # Cores ANSI para destaque no terminal (Arch Linux / Linux CLI)
 GREEN="\033[92m"
 YELLOW="\033[93m"
