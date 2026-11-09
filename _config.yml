@@ -19,12 +19,6 @@ sass:
   style: compressed
 
 # ==========================================
-# Paginação (jekyll-paginate)
-# ==========================================
-paginate: 6
-paginate_path: "/page:num/"
-
-# ==========================================
 # Formatação de Datas e Permalinks
 # ==========================================
 permalink: /:categories/:year/:month/:day/:title/
