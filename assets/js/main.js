@@ -105,4 +105,31 @@ document.addEventListener("DOMContentLoaded", () => {
       link.setAttribute("rel", "noopener noreferrer");
     }
   });
+
+  // ==========================================
+  // 4. Efeito de Entrada Suave (Fade-in) nos Cards
+  // ==========================================
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.1
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  const cards = document.querySelectorAll('.post-card');
+  cards.forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(15px)';
+    card.style.transition = 'opacity 0.4s ease, transform 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease';
+    observer.observe(card);
+  });
 });

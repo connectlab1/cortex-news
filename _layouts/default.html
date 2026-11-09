@@ -16,20 +16,19 @@
 
 <body>
 
-  <header class="site-header">
-    <div class="wrapper">
-      <a class="site-title" rel="author" href="{{ '/' | relative_url }}">{{ site.title | escape }}</a>
-
-      <nav class="site-nav">
-        <a class="page-link" href="{{ '/' | relative_url }}">Início</a>
-        <a class="page-link" href="{{ '/sobre.html' | relative_url }}">Sobre</a>
-      </nav>
-    </div>
-  </header>
+  {% include header.html %}
 
   <main class="page-content" aria-label="Conteúdo Principal">
-    <div class="wrapper">
-      {{ content }}
+    <div class="wrapper main-container-layout">
+
+      <!-- Área principal (Posts / Conteúdo) -->
+      <div class="content-area">
+        {{ content }}
+      </div>
+
+      <!-- Painel Lateral -->
+      {% include sidebar.html %}
+
     </div>
   </main>
 
