@@ -1,0 +1,48 @@
+❯ tree
+.
+├── assets
+│   ├── css
+│   │   └── style.scss
+│   └── js
+│       └── main.js
+├── _config.yml
+├── data
+│   └── historico.json
+├── deploy.sh
+├── doc
+│   └── tree
+├── Gemfile
+├── Gemfile.lock
+├── _includes
+│   ├── header.html
+│   └── sidebar.html
+├── index.html
+├── _layouts
+│   ├── default.html
+│   └── post.html
+├── main_dev.py
+├── main.py
+├── _posts
+├── README.md
+├── requirements.txt
+├── sobre.html
+├── src
+│   ├── cleaner.py
+│   ├── config.py
+│   ├── dictionary.py
+│   ├── filters.py
+│   ├── generator.py
+│   ├── history.py
+│   ├── __init__.py
+│   ├── processor.py
+│   ├── __pycache__
+│   ├── rules.py
+│   └── scraper.py
+└── test
+    ├── analisador.py
+    ├── conftest.py
+    ├── debug.py
+    ├── fix_posts.py
+    ├── __pycache__
+    ├── test_cleaner.py
+    └── test_rules.py

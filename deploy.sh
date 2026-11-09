@@ -6,7 +6,7 @@ set -e
 # Força o Git a utilizar a chave SSH correta localizada em ~/.ssh/connectlab1
 export GIT_SSH_COMMAND="ssh -i ~/.ssh/connectlab1 -o IdentitiesOnly=yes -F /dev/null"
 
-# Cores ANSI para destaque no terminal (Arch Linux / Linux CLI)
+# Cores ANSI para destaque no terminal
 GREEN="\033[92m"
 YELLOW="\033[93m"
 RED="\033[91m"
@@ -15,20 +15,25 @@ CYAN="\033[96m"
 BOLD="\033[1m"
 RESET="\033[0m"
 
+echo -e "${BLUE}${BOLD}==> Executando testes automatizados e QA (pytest)...${RESET}"
+if ! pytest -q; then
+    echo -e "${RED}==> ❌ Falha na suíte de testes unitários! O deploy foi abortado.${RESET}"
+    exit 1
+fi
+echo -e "${GREEN}==> ✔ Suíte de testes unitários aprovada!${RESET}"
+
 echo -e "${BLUE}${BOLD}==> Garantindo a URL remota correta do repositório (SSH)...${RESET}"
 git remote set-url origin git@github.com:connectlab1/cortex-news.git
 
-echo -e "${BLUE}${BOLD}==> Sincronizando com o repositório remoto primeiro (git pull com rebase)...${RESET}"
-# Salva temporariamente qualquer alteração pendente em stash para evitar conflitos
+echo -e "${BLUE}${BOLD}==> Sincronizando com o repositório remoto (git pull com rebase)...${RESET}"
 STASH_CREATED=false
 if ! git diff-index --quiet HEAD -- 2>/dev/null; then
     git stash push -m "auto-stash-before-pull" >/dev/null 2>&1
     STASH_CREATED=true
 fi
 
-# Executa o pull com rebase de forma segura antes de commitar localmente
 if ! git pull origin main --rebase; then
-    echo -e "${RED}==> Aviso: Falha no rebase remoto. Abortando com segurança...${RESET}"
+    echo -e "${RED}==> ❌ Falha no rebase remoto. Abortando deploy com segurança...${RESET}"
     git rebase --abort 2>/dev/null || true
     if [ "$STASH_CREATED" = true ]; then
         git stash pop >/dev/null 2>&1 || true
@@ -36,18 +41,16 @@ if ! git pull origin main --rebase; then
     exit 1
 fi
 
-# Restaura o stash das alterações locais, se houver
 if [ "$STASH_CREATED" = true ]; then
     git stash pop >/dev/null 2>&1 || true
 fi
 
-echo -e "${BLUE}${BOLD}==> Adicionando alterações, scripts e posts ao controle de versão...${RESET}"
-# Adiciona posts, dados, includes, layouts e toda a estrutura essencial do projeto
-git add _posts/ data/ src/ assets/ _layouts/ _includes/ _config.yml index.html *.html README.md *.sh *.py requirements.txt 2>/dev/null || git add .
+echo -e "${BLUE}${BOLD}==> Adicionando alterações ao controle de versão...${RESET}"
+# Adiciona posts, dados, testes, documentação e estrutura essencial do projeto
+git add _posts/ data/ src/ test/ assets/ _layouts/ _includes/ doc/ _config.yml index.html *.html README.md *.sh *.py requirements.txt 2>/dev/null || git add .
 
-# Verifica se há qualquer alteração pendente para commitar
 if [ -n "$(git status --porcelain)" ]; then
-    MSG="${1:-feat: atualização automática do blog, posts e estrutura}"
+    MSG="${1:-feat: atualização automática da pipeline ETL, testes e posts}"
     echo -e "${YELLOW}==> Criando commit: \"${MSG}\"${RESET}"
     git commit -m "$MSG"
 else
